@@ -1,0 +1,23 @@
+node_modules/
+.turbo/
+dist/
+.expo/
+.expo-shared/
+web-build/
+.wrangler/
+.dev.vars
+.env
+.env.local
+*.log
+.DS_Store
+
+# Build artifacts
+*.tsbuildinfo
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+Thumbs.db

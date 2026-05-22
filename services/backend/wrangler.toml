@@ -1,0 +1,11 @@
+name = "odyssey-backend"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[dev]
+port = 8787
+local_protocol = "http"
+
+# DATABASE_URL is provided via .dev.vars (local) or `wrangler secret put` (prod).
+# See README for setup.

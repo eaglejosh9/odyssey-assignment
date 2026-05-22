@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Odyssey Dashboard",
+    "slug": "odyssey-dashboard",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "odyssey",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "platforms": ["web", "ios", "android"],
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": { "origin": false }
+    }
+  }
+}
