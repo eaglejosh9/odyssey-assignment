@@ -55,15 +55,18 @@ export default function CrmRoute() {
             {
               key: "name",
               header: "Customer",
-              render: (c) => (
-                <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.sm }}>
-                  <Avatar name={c.name} />
-                  <View>
-                    <Text variant="bodyMd">{c.name}</Text>
-                    {c.email ? <Text variant="caption" color="muted">{c.email}</Text> : null}
+              render: (c) => {
+                const contact = c.email ?? c.phone;
+                return (
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.sm }}>
+                    <Avatar name={c.name} />
+                    <View>
+                      <Text variant="bodyMd">{c.name}</Text>
+                      {contact ? <Text variant="caption" color="muted">{contact}</Text> : null}
+                    </View>
                   </View>
-                </View>
-              ),
+                );
+              },
             },
             {
               key: "orders",

@@ -26,23 +26,23 @@ export type OrderStatus = z.infer<typeof OrderStatus>;
 export const MenuCategorySelect = createSelectSchema(menuCategories).openapi("MenuCategory");
 
 export const MenuCategoryInsert = createInsertSchema(menuCategories, {
-  name: (s) => s.min(1).max(80),
-  sortOrder: (s) => s.int().min(0).optional(),
+  name: z.string().min(1).max(80),
+  sortOrder: z.number().int().min(0).optional(),
 })
   .omit({ id: true, createdAt: true })
   .openapi("MenuCategoryInput");
 
 // --- Menu item ----------------------------------------------------------
 export const MenuItemSelect = createSelectSchema(menuItems, {
-  description: (s) => s.nullable(),
-  imageUrl: (s) => s.nullable(),
+  description: z.string().nullable(),
+  imageUrl: z.string().nullable(),
 }).openapi("MenuItem");
 
 export const MenuItemInsert = createInsertSchema(menuItems, {
-  name: (s) => s.min(1).max(120),
-  description: (s) => s.max(500).nullable().optional(),
-  priceCents: (s) => s.int().min(0).max(1_000_000),
-  imageUrl: (s) => s.url().nullable().optional(),
+  name: z.string().min(1).max(120),
+  description: z.string().max(500).nullable().optional(),
+  priceCents: z.number().int().min(0).max(1_000_000),
+  imageUrl: z.string().url().nullable().optional(),
 })
   .omit({ id: true, createdAt: true, updatedAt: true })
   .openapi("MenuItemInput");
@@ -51,14 +51,14 @@ export const MenuItemUpdate = MenuItemInsert.partial().openapi("MenuItemUpdate")
 
 // --- Customer -----------------------------------------------------------
 export const CustomerSelect = createSelectSchema(customers, {
-  email: (s) => s.email().nullable(),
-  phone: (s) => s.nullable(),
+  email: z.string().email().nullable(),
+  phone: z.string().nullable(),
 }).openapi("Customer");
 
 export const CustomerInsert = createInsertSchema(customers, {
-  name: (s) => s.min(1).max(120),
-  email: (s) => s.email().nullable().optional(),
-  phone: (s) => s.min(5).max(40).nullable().optional(),
+  name: z.string().min(1).max(120),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().min(5).max(40).nullable().optional(),
 })
   .omit({ id: true, createdAt: true })
   .openapi("CustomerInput");
@@ -120,7 +120,7 @@ export const OpeningHours = z
   .openapi("OpeningHours");
 
 export const BusinessSettingsSelect = createSelectSchema(businessSettings, {
-  openingHours: () => OpeningHours,
+  openingHours: OpeningHours,
 }).openapi("BusinessSettings");
 
 export const BusinessSettingsUpdate = z

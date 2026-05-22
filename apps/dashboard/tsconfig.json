@@ -6,11 +6,25 @@
     "jsx": "react-jsx",
     "noEmit": true,
     "moduleResolution": "Bundler",
-    "lib": ["ES2022", "DOM"],
-    "types": ["expo"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "types": [
+      "expo"
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["app/**/*", "src/**/*", "app.config.ts", "babel.config.js"]
+  "include": [
+    "app/**/*",
+    "src/**/*",
+    "app.config.ts",
+    "babel.config.js",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

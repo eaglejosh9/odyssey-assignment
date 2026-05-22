@@ -1,12 +1,15 @@
 import React from "react";
-import { FlatList, Pressable, View, type ViewStyle } from "react-native";
+import { Pressable, ScrollView, View, type ViewStyle } from "react-native";
 import { useTheme } from "../theme";
 import { Text } from "./Text";
 
 export type TableColumn<T> = {
   key: string;
   header: string;
-  width?: number | string;
+  /** Fixed width in px. If omitted, the column grows (flex: 1) with a sensible minimum. */
+  width?: number;
+  /** Lower bound when flex/grow columns are squeezed. Defaults to 160. */
+  minWidth?: number;
   align?: "left" | "right" | "center";
   render: (row: T) => React.ReactNode;
 };
@@ -29,6 +32,23 @@ function alignToFlex(a: TableColumn<unknown>["align"]): ViewStyle["justifyConten
   }
 }
 
+const CELL_PADDING = 12;
+
+function cellStyle<T>(col: TableColumn<T>): ViewStyle {
+  const fixed = typeof col.width === "number";
+  return {
+    width: fixed ? col.width : undefined,
+    minWidth: fixed ? col.width : col.minWidth ?? 160,
+    flexGrow: fixed ? 0 : 1,
+    flexShrink: fixed ? 0 : 1,
+    flexBasis: fixed ? col.width : 0,
+    paddingRight: CELL_PADDING,
+    justifyContent: alignToFlex(col.align),
+    alignItems: "center",
+    flexDirection: "row",
+  };
+}
+
 export function Table<T>({
   rows,
   columns,
@@ -39,6 +59,14 @@ export function Table<T>({
   style,
 }: TableProps<T>) {
   const theme = useTheme();
+
+  // Sum of every column's effective min-width — the table never compresses
+  // below this; instead the user scrolls horizontally.
+  const minTableWidth = columns.reduce(
+    (acc, c) =>
+      acc + (typeof c.width === "number" ? c.width : c.minWidth ?? 160) + CELL_PADDING,
+    0
+  );
 
   return (
     <View
@@ -53,55 +81,49 @@ export function Table<T>({
         style,
       ]}
     >
-      <View
-        style={{
-          flexDirection: "row",
-          paddingVertical: theme.spacing.sm,
-          paddingHorizontal: theme.spacing.base,
-          backgroundColor: theme.colors.surfaceMuted,
-          borderBottomWidth: 1,
-          borderColor: theme.colors.divider,
-          gap: theme.spacing.base,
-        }}
-      >
-        {columns.map((col) => (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ minWidth: "100%" }}>
+        <View style={{ minWidth: minTableWidth, flex: 1 }}>
+          {/* Header */}
           <View
-            key={col.key}
             style={{
-              width: typeof col.width === "number" ? col.width : undefined,
-              flex: col.width === undefined ? 1 : 0,
-              justifyContent: alignToFlex(col.align),
               flexDirection: "row",
+              paddingVertical: theme.spacing.sm,
+              paddingLeft: theme.spacing.base,
+              paddingRight: theme.spacing.base - CELL_PADDING,
+              backgroundColor: theme.colors.surfaceMuted,
+              borderBottomWidth: 1,
+              borderColor: theme.colors.divider,
             }}
           >
-            <Text variant="overline" color="muted">{col.header}</Text>
+            {columns.map((col) => (
+              <View key={col.key} style={cellStyle(col)}>
+                <Text variant="overline" color="muted" numberOfLines={1}>{col.header}</Text>
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
 
-      {loading ? (
-        <View style={{ padding: theme.spacing.xl, alignItems: "center" }}>
-          <Text color="muted">Loading…</Text>
-        </View>
-      ) : rows.length === 0 ? (
-        <View style={{ padding: theme.spacing.xl, alignItems: "center" }}>
-          {emptyState ?? <Text color="muted">No results.</Text>}
-        </View>
-      ) : (
-        <FlatList
-          data={rows as T[]}
-          keyExtractor={keyExtractor}
-          renderItem={({ item, index }) => (
-            <Row
-              item={item}
-              columns={columns}
-              onPress={onRowPress}
-              divider={index < rows.length - 1}
-            />
+          {/* Body */}
+          {loading ? (
+            <View style={{ padding: theme.spacing.xl, alignItems: "center" }}>
+              <Text color="muted">Loading…</Text>
+            </View>
+          ) : rows.length === 0 ? (
+            <View style={{ padding: theme.spacing.xl, alignItems: "center" }}>
+              {emptyState ?? <Text color="muted">No results.</Text>}
+            </View>
+          ) : (
+            rows.map((row, index) => (
+              <Row
+                key={keyExtractor(row)}
+                item={row}
+                columns={columns}
+                onPress={onRowPress}
+                divider={index < rows.length - 1}
+              />
+            ))
           )}
-          scrollEnabled={false}
-        />
-      )}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -125,8 +147,8 @@ function Row<T>({
       style={{
         flexDirection: "row",
         paddingVertical: theme.spacing.md,
-        paddingHorizontal: theme.spacing.base,
-        gap: theme.spacing.base,
+        paddingLeft: theme.spacing.base,
+        paddingRight: theme.spacing.base - CELL_PADDING,
         backgroundColor: hovered ? theme.colors.surfaceMuted : theme.colors.surface,
         borderBottomWidth: divider ? 1 : 0,
         borderColor: theme.colors.divider,
@@ -134,15 +156,7 @@ function Row<T>({
       }}
     >
       {columns.map((col) => (
-        <View
-          key={col.key}
-          style={{
-            width: typeof col.width === "number" ? col.width : undefined,
-            flex: col.width === undefined ? 1 : 0,
-            justifyContent: alignToFlex(col.align),
-            flexDirection: "row",
-          }}
-        >
+        <View key={col.key} style={cellStyle(col)}>
           {col.render(item)}
         </View>
       ))}

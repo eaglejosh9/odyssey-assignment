@@ -6,6 +6,7 @@ import {
 import { formatCents, formatRelative } from "@odyssey/shared";
 import {
   Badge,
+  Button,
   Card,
   EmptyState,
   StatusPill,
@@ -17,6 +18,7 @@ import {
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { PageHeader } from "../src/components/PageHeader";
+import { NewOrderModal } from "../src/features/orders/NewOrderModal";
 import { OrderDetailDrawer } from "../src/features/orders/OrderDetailDrawer";
 import { AppShell } from "../src/layout/AppShell";
 
@@ -35,6 +37,7 @@ export default function OrdersRoute() {
   const theme = useTheme();
   const [bucket, setBucket] = useState<Bucket>("active");
   const [selected, setSelected] = useState<OrderWithItems | null>(null);
+  const [composing, setComposing] = useState(false);
 
   // Pull all orders once and slice client-side for tab counts. For larger
   // volumes we'd refetch per filter; at this scale a single fetch is faster.
@@ -64,9 +67,14 @@ export default function OrdersRoute() {
         title="Orders"
         subtitle="Inbound tickets, in-progress prep, and completed orders."
         right={
-          <Badge tone="accent" variant="soft">
-            {filtered.length} {filtered.length === 1 ? "order" : "orders"}
-          </Badge>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.sm }}>
+            <Badge tone="accent" variant="soft">
+              {filtered.length} {filtered.length === 1 ? "order" : "orders"}
+            </Badge>
+            <Button onPress={() => setComposing(true)} leftSlot={<Text color="onAccent">＋</Text>}>
+              New order
+            </Button>
+          </View>
         }
       />
 
@@ -152,6 +160,8 @@ export default function OrdersRoute() {
         open={selected !== null}
         onClose={() => setSelected(null)}
       />
+
+      <NewOrderModal open={composing} onClose={() => setComposing(false)} />
     </AppShell>
   );
 }

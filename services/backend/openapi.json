@@ -1,0 +1,1285 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Odyssey Restaurant API",
+    "version": "0.1.0",
+    "description": "Hono + Drizzle + Neon. Schemas generated from drizzle-zod."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8787",
+      "description": "Local dev"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "MenuCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "sortOrder",
+          "createdAt"
+        ]
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "details": {
+            "nullable": true
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ]
+      },
+      "MenuCategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "MenuItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "categoryId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceCents": {
+            "type": "number"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "name",
+          "description",
+          "priceCents",
+          "available",
+          "imageUrl",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MenuItemInput": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "priceCents": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri"
+          }
+        },
+        "required": [
+          "categoryId",
+          "name",
+          "priceCents"
+        ]
+      },
+      "MenuItemUpdate": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "priceCents": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri"
+          }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "phone",
+          "createdAt"
+        ]
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "orderId": {
+            "type": "number"
+          },
+          "menuItemId": {
+            "type": "number"
+          },
+          "nameSnapshot": {
+            "type": "string"
+          },
+          "priceSnapshotCents": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "menuItemId",
+          "nameSnapshot",
+          "priceSnapshotCents",
+          "quantity"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "customerId": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "preparing",
+              "ready",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "subtotalCents": {
+            "type": "number"
+          },
+          "taxCents": {
+            "type": "number"
+          },
+          "totalCents": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "placedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "customerId",
+          "status",
+          "subtotalCents",
+          "taxCents",
+          "totalCents",
+          "notes",
+          "placedAt",
+          "updatedAt"
+        ]
+      },
+      "OrderWithItems": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Order"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "customer": {
+                "$ref": "#/components/schemas/Customer"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderItem"
+                }
+              }
+            },
+            "required": [
+              "customer",
+              "items"
+            ]
+          }
+        ]
+      },
+      "OrderStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "accepted",
+          "preparing",
+          "ready",
+          "completed",
+          "cancelled"
+        ]
+      },
+      "OrderItemInput": {
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "menuItemId",
+          "quantity"
+        ]
+      },
+      "CreateOrderInput": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemInput"
+            },
+            "minItems": 1
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "customerId",
+          "items"
+        ]
+      },
+      "OrderStatusAction": {
+        "type": "string",
+        "enum": [
+          "accepted",
+          "preparing",
+          "ready",
+          "completed",
+          "cancelled"
+        ]
+      },
+      "UpdateOrderStatusInput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusAction"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CustomerWithStats": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Customer"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "orderCount": {
+                "type": "integer"
+              },
+              "lifetimeSpendCents": {
+                "type": "integer"
+              },
+              "lastOrderAt": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "orderCount",
+              "lifetimeSpendCents",
+              "lastOrderAt"
+            ]
+          }
+        ]
+      },
+      "CustomerInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 5,
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "OpeningHoursDay": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$"
+          },
+          "close": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$"
+          },
+          "closed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "open",
+          "close",
+          "closed"
+        ]
+      },
+      "OpeningHours": {
+        "type": "object",
+        "properties": {
+          "mon": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "tue": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "wed": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "thu": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "fri": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "sat": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          },
+          "sun": {
+            "$ref": "#/components/schemas/OpeningHoursDay"
+          }
+        },
+        "required": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "BusinessSettings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "prepTimeMinutes": {
+            "type": "number"
+          },
+          "autoAccept": {
+            "type": "boolean"
+          },
+          "acceptingOrders": {
+            "type": "boolean"
+          },
+          "taxRateBps": {
+            "type": "number"
+          },
+          "openingHours": {
+            "$ref": "#/components/schemas/OpeningHours"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "prepTimeMinutes",
+          "autoAccept",
+          "acceptingOrders",
+          "taxRateBps",
+          "openingHours",
+          "updatedAt"
+        ]
+      },
+      "BusinessSettingsUpdate": {
+        "type": "object",
+        "properties": {
+          "prepTimeMinutes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 240
+          },
+          "autoAccept": {
+            "type": "boolean"
+          },
+          "acceptingOrders": {
+            "type": "boolean"
+          },
+          "taxRateBps": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2000
+          },
+          "openingHours": {
+            "$ref": "#/components/schemas/OpeningHours"
+          }
+        }
+      },
+      "HomeStats": {
+        "type": "object",
+        "properties": {
+          "totalOrdersToday": {
+            "type": "integer"
+          },
+          "revenueTodayCents": {
+            "type": "integer"
+          },
+          "pendingOrders": {
+            "type": "integer"
+          },
+          "inProgressOrders": {
+            "type": "integer"
+          },
+          "completedOrdersToday": {
+            "type": "integer"
+          },
+          "averageOrderValueCents": {
+            "type": "integer"
+          },
+          "popularItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "menuItemId": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "soldCount": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "menuItemId",
+                "name",
+                "soldCount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "totalOrdersToday",
+          "revenueTodayCents",
+          "pendingOrders",
+          "inProgressOrders",
+          "completedOrdersToday",
+          "averageOrderValueCents",
+          "popularItems"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/menu/categories": {
+      "get": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "List menu categories",
+        "responses": {
+          "200": {
+            "description": "Categories ordered by sort_order then id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuCategory"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Create a menu category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuCategoryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuCategory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/items": {
+      "get": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "List menu items",
+        "responses": {
+          "200": {
+            "description": "All menu items.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Create a menu item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItemInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/items/{id}": {
+      "patch": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Update a menu item (e.g. toggle availability, change price)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItemUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Delete a menu item",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "List orders with filters",
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/OrderStatus"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderStatus"
+                  }
+                }
+              ],
+              "description": "Filter by one or more statuses."
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "customerId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching orders, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderWithItems"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Create an order. Totals computed server-side.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created order with items.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithItems"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer or item not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Item unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not accepting orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get an order with items + customer",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithItems"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/status": {
+      "patch": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Advance an order through the state machine",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStatusInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithItems"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Invalid status transition",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "List customers with aggregate stats",
+        "responses": {
+          "200": {
+            "description": "Customers with order_count, lifetime_spend_cents, last_order_at.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerWithStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Create a customer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get a customer with stats",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerWithStats"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}/orders": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "List orders for a customer",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders sorted by placed_at desc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderWithItems"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Get business settings",
+        "responses": {
+          "200": {
+            "description": "Settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Update business settings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessSettingsUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/home": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "Aggregate KPIs for the dashboard Home page",
+        "responses": {
+          "200": {
+            "description": "Home stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

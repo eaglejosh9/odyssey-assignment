@@ -12,8 +12,7 @@
     "experiments": { "typedRoutes": true },
     "web": {
       "bundler": "metro",
-      "output": "single",
-      "favicon": "./assets/favicon.png"
+      "output": "single"
     },
     "extra": {
       "router": { "origin": false }

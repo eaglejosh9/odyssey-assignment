@@ -1,5 +1,4 @@
 import {
-  useDeleteMenuItem,
   useListMenuCategories,
   useListMenuItems,
   useUpdateMenuItem,
@@ -22,6 +21,7 @@ import {
 import { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { PageHeader } from "../src/components/PageHeader";
+import { CategoryFormModal } from "../src/features/menu/CategoryFormModal";
 import { MenuItemFormModal } from "../src/features/menu/MenuItemForm";
 import { AppShell } from "../src/layout/AppShell";
 
@@ -32,6 +32,7 @@ export default function MenuRoute() {
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const [creating, setCreating] = useState(false);
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   const grouped = useMemo(() => {
     if (!items.data || !categories.data) return [];
@@ -59,10 +60,13 @@ export default function MenuRoute() {
         title="Menu"
         subtitle="Manage what's available to order. Disabled items disappear from new orders immediately."
         right={
-          <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
+          <View style={{ flexDirection: "row", gap: theme.spacing.sm, alignItems: "center" }}>
             <Badge tone="neutral">
               {counts.available}/{counts.total} available
             </Badge>
+            <Button variant="secondary" onPress={() => setCreatingCategory(true)}>
+              New category
+            </Button>
             <Button onPress={() => setCreating(true)} leftSlot={<Text color="onAccent">＋</Text>}>
               Add item
             </Button>
@@ -132,6 +136,10 @@ export default function MenuRoute() {
         onClose={() => setEditing(null)}
         item={editing ?? undefined}
       />
+      <CategoryFormModal
+        open={creatingCategory}
+        onClose={() => setCreatingCategory(false)}
+      />
     </AppShell>
   );
 }
@@ -140,7 +148,6 @@ function MenuItemRow({ item, onEdit }: { item: MenuItem; onEdit: () => void }) {
   const theme = useTheme();
   const toast = useToast();
   const update = useUpdateMenuItem();
-  const remove = useDeleteMenuItem();
   const [hovered, setHovered] = useState(false);
 
   function toggleAvailability() {

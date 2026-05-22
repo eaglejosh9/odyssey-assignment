@@ -53,6 +53,7 @@ export function OrderDetailDrawer({
                           tone: action === "cancelled" ? "warning" : "success",
                           title: `Order #${order.id} ${action}`,
                         });
+                        onClose();
                       },
                       onError: (err) => {
                         toast.push({

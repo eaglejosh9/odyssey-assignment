@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal as RNModal, Pressable, View, type ViewStyle } from "react-native";
+import { Modal as RNModal, Pressable, ScrollView, View, type ViewStyle } from "react-native";
 import { useTheme } from "../theme";
 import { Text } from "./Text";
 import { IconButton } from "./IconButton";
@@ -77,7 +77,13 @@ export function Modal({
               </IconButton>
             </View>
           ) : null}
-          <View style={{ padding: theme.spacing.lg }}>{children}</View>
+          <ScrollView
+            style={{ flexShrink: 1 }}
+            contentContainerStyle={{ padding: theme.spacing.lg }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {children}
+          </ScrollView>
           {footer ? (
             <View
               style={{

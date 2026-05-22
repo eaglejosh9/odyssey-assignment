@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { TextInput, View, type TextInputProps, type ViewStyle } from "react-native";
 import { useTheme } from "../theme";
 
@@ -17,6 +17,7 @@ export function TextArea({ invalid, rows = 4, style, editable = true, ...rest }:
     <View
       style={[
         {
+          width: "100%",
           minHeight: minH,
           padding: theme.spacing.md,
           borderRadius: theme.radius.md,
@@ -36,12 +37,13 @@ export function TextArea({ invalid, rows = 4, style, editable = true, ...rest }:
         onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }}
         placeholderTextColor={theme.colors.textMuted}
         style={{
+          width: "100%",
           color: theme.colors.textPrimary,
           fontFamily: theme.typography.body.fontFamily,
           fontSize: 14,
           textAlignVertical: "top",
           minHeight: 18 * rows,
-          ...(({ outlineStyle: "none" } as unknown) as object),
+          ...(({ outlineStyle: "none", resize: "vertical" } as unknown) as object),
         }}
       />
     </View>
