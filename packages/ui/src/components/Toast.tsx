@@ -63,7 +63,6 @@ function ToastViewport({
         right: theme.spacing.lg,
         gap: theme.spacing.sm,
         zIndex: 9999,
-        // @ts-expect-error rn-web
         maxWidth: 380,
       }}
     >

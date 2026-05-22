@@ -44,10 +44,13 @@ pnpm db:seed     # inserts categories, items, customers, orders, settings
 pnpm gen:contract
 ```
 
-> The repo ships with a hand-mirrored `packages/api-client/src/generated/` so the
-> dashboard compiles before the first codegen. Running `pnpm gen:contract`
-> overwrites it from the live OpenAPI document — that's the normal workflow whenever
-> backend routes change.
+> `pnpm gen:contract` writes `services/backend/openapi.json` and runs Orval.
+> Generated TypeScript types and per-route clients land under
+> `packages/api-client/src/generated/{schemas,orders,menu,customers,settings,stats}/`
+> and are the runtime + type source. Top-level wrapper files (`orders.ts`, etc.)
+> are thin React Query wrappers that delegate to Orval's async client functions
+> and expose friendlier hook names. See
+> [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#orval-with-a-fetch-mutator).
 
 ## Run
 

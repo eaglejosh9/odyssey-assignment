@@ -1,10 +1,4 @@
-# Orval re-emits these directories when `pnpm gen:contract` runs. We keep the
-# hand-written stable surface (src/generated/{menu,orders,customers,settings,stats,schemas}.ts)
-# as the canonical client; these subdirs are regenerable artifacts and don't
-# need to be committed.
-src/generated/menu/
-src/generated/orders/
-src/generated/customers/
-src/generated/settings/
-src/generated/stats/
-src/generated/schemas/
+# Intentionally empty — the Orval-generated subdirectories under src/generated/
+# are committed. They are the runtime source of truth; the top-level files
+# (menu.ts, orders.ts, customers.ts, settings.ts, stats.ts, schemas.ts) are
+# thin alias re-exports that give the dashboard friendlier hook names.

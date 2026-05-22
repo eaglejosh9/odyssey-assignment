@@ -37,11 +37,35 @@ Workers can't open TCP sockets to a local Postgres without a tunnel. Neon's HTTP
 The brief said so, but Drizzle is the right call for Workers anyway — Prisma's engine binary doesn't ship there. `drizzle-zod` is the keystone: it produces zod schemas directly from the table definitions, which feed straight into the OpenAPI route definitions. Schema changes propagate without manual restating.
 
 ### Orval with a `fetch` mutator
-Orval ingests `openapi.json` and emits typed React Query hooks. The hooks call our custom `apiFetch` mutator (`packages/api-client/src/mutator.ts`), which centralizes base URL, JSON handling, and typed error throwing. Orval's `tags-split` mode keeps the generated code reviewable.
+Orval ingests `openapi.json` and emits typed React Query hooks plus async client functions for every route. Both call our custom `apiFetch` mutator (`packages/api-client/src/mutator.ts`), which centralizes base URL resolution, JSON handling, and typed error throwing. Orval's `tags-split` mode keeps the generated code reviewable.
 
-> **Note on the committed generated files**: the repo ships with a hand-mirrored
-> `generated/` so the dashboard compiles before codegen is run. Running
-> `pnpm gen:contract` overwrites those files from the live OpenAPI document.
+**Structure of `packages/api-client/src/generated/`:**
+
+```
+generated/
+├── schemas/              ← Orval-generated types (one file per OpenAPI schema)
+├── orders/               ← Orval-generated client + hooks for /orders/*
+├── menu/                 ← Orval-generated client + hooks for /menu/*
+├── customers/            ← Orval-generated client + hooks for /customers/*
+├── settings/             ← Orval-generated client + hooks for /settings
+├── stats/                ← Orval-generated client + hooks for /stats/*
+├── schemas.ts            ← `export * from './schemas/'` — single import surface
+├── orders.ts             ← thin wrapper: friendlier hook names + unwraps response
+├── menu.ts               ← same pattern
+├── customers.ts          ← same pattern
+├── settings.ts           ← same pattern
+└── stats.ts              ← same pattern
+```
+
+The top-level `.ts` files are deliberate **wrappers**, not duplicate types. Each one:
+
+- imports Orval's async client function (e.g. `getOrders`, `patchOrdersIdStatus`) and types from its sibling subdirectory
+- wires it through `useQuery` / `useMutation` with a project-wide query-key scheme so mutations can invalidate consistently
+- unwraps Orval's `{ data, status, headers }` response envelope so consumers can treat `result.data` as the response body directly
+
+The dashboard imports only from these wrappers (e.g. `useListOrders` instead of `useGetOrders`), but the runtime path goes through the Orval-generated code. A backend field rename triggers `pnpm gen:contract` → Orval rewrites `schemas/` and the per-route clients → TypeScript surfaces every affected call site in the dashboard. No hand-maintained shadow.
+
+**Orval signal patch**: Orval 7.21 has a small codegen bug where param-less endpoints call `getX(signal)` instead of `getX({ signal })`. `packages/api-client/scripts/fix-orval-signal.mjs` runs automatically after `orval` to rewrite those call sites — idempotent, no manual editing of generated files.
 
 ### Expo + RN Web (not Next.js)
 The brief required RN. Expo Router gives a file-based router that works on web and native from one codebase. We ship a web-first dashboard; the native bundle is reachable but not the primary target.
@@ -108,7 +132,7 @@ pending → accepted → preparing → ready → completed
 
 | Tradeoff                                                          | Why                                                                                |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Hand-mirrored generated client checked in                         | Lets reviewers compile without running codegen. `pnpm gen:contract` overwrites it. |
+| Thin wrappers around Orval output instead of using its hooks raw  | Orval's hook names (`useGetOrders`) are verbose; wrappers expose `useListOrders` and unwrap the `{data,status,headers}` envelope. Wrappers delegate to Orval's generated async client functions — Orval remains the runtime + type source. |
 | No transactions in `createOrder`                                  | Neon HTTP driver limitation. FK constraints keep model consistent.                 |
 | Polling instead of push                                           | Smaller surface for a 1–2 day build; React Query's `refetchInterval` is enough.    |
 | Single hard-coded restaurant identity                             | No multi-tenant model. Trivial to extend.                                          |

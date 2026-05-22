@@ -1,12 +1,15 @@
 /**
- * Custom fetch mutator consumed by Orval's generated hooks.
+ * Fetch mutator consumed by Orval's generated client (`httpClient: "fetch"`).
  *
- * Centralizes:
- *   - base URL resolution (set via setApiBaseUrl on app startup)
- *   - JSON serialization
- *   - typed error throwing
+ * Orval emits code that calls:
  *
- * Frontend code should never call this directly; use the generated hooks.
+ *     apiFetch<TResponse>(url, requestInit)
+ *
+ * and expects `Promise<{ data, status, headers }>` back. We resolve the
+ * base URL and convert non-2xx responses into a typed `ApiHttpError`.
+ *
+ * Frontend code never imports this directly — generated hooks (and the
+ * small wrapper layer that gives them friendlier names) call it.
  */
 
 let baseUrl = "http://localhost:8787";
@@ -34,52 +37,35 @@ export class ApiHttpError extends Error {
   }
 }
 
-type Options = {
-  url: string;
-  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-  params?: Record<string, unknown>;
-  data?: unknown;
-  headers?: Record<string, string>;
-  signal?: AbortSignal;
-};
+/**
+ * The shape Orval's generated code expects every response to take.
+ * Mirrors how Orval would wrap an axios/fetch response in `httpClient: "fetch"` mode.
+ */
+export type OrvalResponse<T> = { data: T; status: number; headers: Headers };
 
-function buildUrl(url: string, params?: Record<string, unknown>): string {
-  const u = new URL(url.startsWith("http") ? url : `${baseUrl}${url}`);
-  if (params) {
-    for (const [k, v] of Object.entries(params)) {
-      if (v === undefined || v === null) continue;
-      if (Array.isArray(v)) {
-        for (const item of v) u.searchParams.append(k, String(item));
-      } else {
-        u.searchParams.set(k, String(v));
-      }
-    }
-  }
-  return u.toString();
-}
-
-export async function apiFetch<T>(options: Options): Promise<T> {
-  const url = buildUrl(options.url, options.params);
-  const init: RequestInit = {
-    method: options.method,
+export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+  const res = await fetch(fullUrl, {
+    ...init,
     headers: {
-      "content-type": "application/json",
       accept: "application/json",
-      ...options.headers,
+      ...init?.headers,
     },
-    signal: options.signal,
-  };
-  if (options.data !== undefined) init.body = JSON.stringify(options.data);
+  });
 
-  const res = await fetch(url, init);
-  if (res.status === 204) return undefined as T;
+  // 204 No Content
+  if (res.status === 204) {
+    return { data: undefined, status: 204, headers: res.headers } as T;
+  }
 
   const text = await res.text();
   const parsed = text ? safeParse(text) : undefined;
+
   if (!res.ok) {
-    throw new ApiHttpError(res.status, parsed as ApiErrorBody | undefined, url);
+    throw new ApiHttpError(res.status, parsed as ApiErrorBody | undefined, fullUrl);
   }
-  return parsed as T;
+
+  return { data: parsed, status: res.status, headers: res.headers } as T;
 }
 
 function safeParse(text: string): unknown {
@@ -90,6 +76,6 @@ function safeParse(text: string): unknown {
   }
 }
 
-// Orval expects the mutator default export shape for the bodyType utility.
+// Orval references these via the mutator path.
 export type ErrorType<E> = ApiHttpError & { body?: E };
 export type BodyType<B> = B;
